@@ -2,12 +2,12 @@ package handler
 
 type userOut struct {
 	ID       int    `json:"id"`
-	Email    string `json:"username"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 
 type userIn struct {
-	Email    string `json:"username"`
+	Email    string `json:"email"`
 	Password string `json:"password"`
 }
 

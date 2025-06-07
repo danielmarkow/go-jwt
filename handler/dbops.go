@@ -46,11 +46,11 @@ func (ac *AppContext) getUserByEmail(email string) ([]userOut, error) {
 func (ac *AppContext) createUser(user userIn) error {
 	hashedPw, err := hashPassword(user.Password)
 	if err != nil {
-		return fmt.Errorf("failed to hash pw: %w", err)
+		return err
 	}
 	_, err = ac.DB.Exec("INSERT INTO users (email, password) VALUES (?, ?)", user.Email, hashedPw)
 	if err != nil {
-		return fmt.Errorf("failed to insert user: %w", err)
+		return err
 	}
 	return nil
 }

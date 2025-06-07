@@ -2,6 +2,7 @@ package dbutils
 
 import (
 	"database/sql"
+	_ "github.com/mattn/go-sqlite3"
 	"log"
 	"os"
 )

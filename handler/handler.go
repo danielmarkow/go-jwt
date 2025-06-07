@@ -3,11 +3,14 @@ package handler
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"fmt"
-	"github.com/gorilla/mux"
+	"github.com/mattn/go-sqlite3"
 	"go-jwt/token"
 	"log"
 	"net/http"
+
+	"github.com/gorilla/mux"
 )
 
 type AppContext struct {
@@ -43,6 +46,14 @@ func (ac *AppContext) SignUpHandler(writer http.ResponseWriter, req *http.Reques
 	}
 	err = ac.createUser(user)
 	if err != nil {
+		var sqliteErr sqlite3.Error
+		if errors.As(err, &sqliteErr) {
+			if sqliteErr.ExtendedCode == sqlite3.ErrConstraintUnique {
+				log.Printf("user already exists: %s \n", user.Email)
+				writer.WriteHeader(http.StatusConflict)
+				return
+			}
+		}
 		log.Printf("failed to create user: %s \n", err.Error())
 		writer.WriteHeader(http.StatusInternalServerError)
 		return

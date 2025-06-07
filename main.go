@@ -21,6 +21,7 @@ func main() {
 
 	appCtx := &handler.AppContext{DB: db}
 	router := mux.NewRouter()
+
 	handler.RegisterRoutes(router, appCtx)
 
 	log.Printf("starting the server at %s \n", serverAddr)
