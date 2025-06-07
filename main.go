@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
 	_ "github.com/mattn/go-sqlite3"
 	"go-jwt/dbutils"
@@ -19,7 +20,7 @@ func main() {
 
 	migrations.CreateTables(db)
 
-	appCtx := &handler.AppContext{DB: db}
+	appCtx := &handler.AppContext{DB: db, Validator: validator.New()}
 	router := mux.NewRouter()
 
 	handler.RegisterRoutes(router, appCtx)

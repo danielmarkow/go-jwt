@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/go-playground/validator/v10"
 	"github.com/mattn/go-sqlite3"
 	"go-jwt/token"
 	"log"
@@ -14,7 +15,8 @@ import (
 )
 
 type AppContext struct {
-	DB *sql.DB
+	DB        *sql.DB
+	Validator *validator.Validate
 }
 
 func RegisterRoutes(router *mux.Router, ac *AppContext) {
@@ -40,25 +42,33 @@ func (ac *AppContext) SignUpHandler(writer http.ResponseWriter, req *http.Reques
 	var user userIn
 	err := json.NewDecoder(req.Body).Decode(&user)
 	if err != nil {
-		log.Printf("error decoding message body: %s \n", err.Error())
+		log.Printf("SignUpHandler - error decoding message body: %s \n", err.Error())
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
+
+	err = ac.Validator.Struct(user)
+	if err != nil {
+		log.Printf("SignUpHandler - input validation failed: %s \n", err.Error())
+		writer.WriteHeader(http.StatusBadRequest)
+		return
+	}
+
 	err = ac.createUser(user)
 	if err != nil {
 		var sqliteErr sqlite3.Error
 		if errors.As(err, &sqliteErr) {
 			if sqliteErr.ExtendedCode == sqlite3.ErrConstraintUnique {
-				log.Printf("user already exists: %s \n", user.Email)
+				log.Printf("SignUpHandler - user already exists: %s \n", user.Email)
 				writer.WriteHeader(http.StatusConflict)
 				return
 			}
 		}
-		log.Printf("failed to create user: %s \n", err.Error())
+		log.Printf("SignUpHandler - failed to create user: %s \n", err.Error())
 		writer.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	log.Println("user created")
+	log.Println("SignUpHandler - user created")
 	writer.WriteHeader(http.StatusCreated)
 }
 
@@ -70,6 +80,13 @@ func (ac *AppContext) LoginHandler(writer http.ResponseWriter, req *http.Request
 	if err != nil {
 		log.Printf("error decoding message body: %s \n", err.Error())
 		writer.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	err = ac.Validator.Struct(user)
+	if err != nil {
+		log.Printf("SignUpHandler - input validation failed: %s \n", err.Error())
+		writer.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
