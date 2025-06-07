@@ -32,9 +32,7 @@ func RegisterRoutes(router *mux.Router, ac *AppContext) {
 	protectedRouter.HandleFunc("/test", ac.ProtectedHandler).Methods("GET")
 }
 
-// TODO validate request bodies
-// TODO set HTTP only cookie serverside
-// TODO refresh token
+// TODO refresh token -> set HTTP only cookie serverside
 
 func (ac *AppContext) SignUpHandler(writer http.ResponseWriter, req *http.Request) {
 	writer.Header().Set("Content-Type", "application/json")
