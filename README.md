@@ -7,6 +7,12 @@ for future web-applications as well it integrate it nicely with a solid SPA.
 ## Warning
 This has not been audited. If you decide to use this do so on your own risk.
 
+## Help out
+If you find this useful:
+
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://buymeacoffee.com/danielmarkow)
+
+
 ## TODOs
 - Refresh Tokens
 - Reset password via Email
