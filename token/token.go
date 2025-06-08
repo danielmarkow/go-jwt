@@ -7,13 +7,15 @@ import (
 	"time"
 )
 
-var secretKey = []byte("secret-key")
+var secretKey = []byte("secret-key") // TODO change to actual secret key!!!
 
-func CreateToken(email string) (string, error) {
+// CreateToken needs to be changed in case uuids are used
+func CreateToken(email string, userId int) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
 		jwt.MapClaims{
 			"email": email,
-			"exp":   time.Now().Add(time.Hour * 24).Unix(),
+			"exp":   time.Now().Add(time.Minute * 15).Unix(),
+			"sub":   userId,
 		})
 
 	tokenString, err := token.SignedString(secretKey)
@@ -22,6 +24,21 @@ func CreateToken(email string) (string, error) {
 		return "", err
 	}
 
+	return tokenString, nil
+}
+
+// CreateRefreshToken needs to be changed in case uuids are used
+func CreateRefreshToken(userId int) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256,
+		jwt.MapClaims{
+			"exp": time.Now().Add(time.Hour * 24).Unix(),
+			"sub": userId,
+		})
+	tokenString, err := token.SignedString(secretKey)
+	if err != nil {
+		log.Printf("error signing refresh token: %s \n", err.Error())
+		return "", err
+	}
 	return tokenString, nil
 }
 

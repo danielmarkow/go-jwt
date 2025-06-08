@@ -25,6 +25,7 @@ func RegisterRoutes(router *mux.Router, ac *AppContext) {
 	apiRouter := router.PathPrefix("/api").Subrouter()
 	apiRouter.HandleFunc("/login", ac.LoginHandler).Methods("POST")
 	apiRouter.HandleFunc("/signup", ac.SignUpHandler).Methods("POST")
+	apiRouter.HandleFunc("/refresh", ac.RefreshAccessToken).Methods("POST")
 
 	protectedRouter := apiRouter.PathPrefix("/protected").Subrouter()
 	protectedRouter.Use(AuthMiddleware)
@@ -33,6 +34,8 @@ func RegisterRoutes(router *mux.Router, ac *AppContext) {
 }
 
 // TODO refresh token -> set HTTP only cookie serverside
+
+func (ac *AppContext) RefreshAccessToken(writer http.ResponseWriter, req *http.Request) {}
 
 func (ac *AppContext) SignUpHandler(writer http.ResponseWriter, req *http.Request) {
 	writer.Header().Set("Content-Type", "application/json")
@@ -102,7 +105,7 @@ func (ac *AppContext) LoginHandler(writer http.ResponseWriter, req *http.Request
 	}
 
 	if usersDb[0].Email == user.Email && isItTheSamePw([]byte(usersDb[0].Password), []byte(user.Password)) {
-		tokenString, err := token.CreateToken(user.Email)
+		tokenString, err := token.CreateToken(usersDb[0].Email, usersDb[0].ID)
 		if err != nil {
 			log.Printf("error creating token: %s \n", err.Error())
 			writer.WriteHeader(http.StatusInternalServerError)
